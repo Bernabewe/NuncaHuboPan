@@ -18,7 +18,7 @@ from typing import List
 
 # Importación de contratos y de las funciones del módulo de lógica
 from contracts import GameEvent, CommentarySegment
-from control_logic import cargar_eventos_mock, filtrar_eventos_cooldown
+from .control_logic import cargar_eventos_mock, filtrar_eventos_cooldown
 
 # Inicialización explícita y nativa del modelo y su procesador
 print("⏳ Cargando procesador y modelo de voz Bark (suno/bark-small)...")
