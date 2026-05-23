@@ -1,64 +1,64 @@
 import sys
 sys.path.append("..")
 import os
-# --- COPIA Y PEGA ESTO PARA SILENCIAR LOS WARNINGS DE LA TERMINAL ---
+
+# --- SILENCIAR WARNINGS DE LA TERMINAL ---
 import warnings
 from transformers import logging
-
-# Silencia las advertencias nativas de Python
 warnings.filterwarnings("ignore")
-# Silencia las advertencias de desarrollo de Hugging Face / Transformers
 logging.set_verbosity_error()
-# ---------------------
+# ----------------------------------------
+
 import torch
 import scipy.io.wavfile as wavfile
-# Cargamos los componentes nativos de Bark en lugar del pipeline genérico
-from transformers import BarkModel, AutoProcessor
+from transformers import VitsModel, AutoTokenizer
 from typing import List
 
 # Importación de contratos y de las funciones del módulo de lógica
 from contracts import GameEvent, CommentarySegment
-from .control_logic import cargar_eventos_mock, filtrar_eventos_cooldown
+from control_logic import cargar_eventos_mock, filtrar_eventos_cooldown
 
-# Inicialización explícita y nativa del modelo y su procesador
-print("⏳ Cargando procesador y modelo de voz Bark (suno/bark-small)...")
-processor = AutoProcessor.from_pretrained("suno/bark-small")
-model = BarkModel.from_pretrained("suno/bark-small")
+# Inicialización del modelo VITS en español (Ligero y Ultra-Veloz)
+print("⏳ Cargando modelo de voz de alta velocidad (facebook/mms-tts-spa)...")
+tokenizer = AutoTokenizer.from_pretrained("facebook/mms-tts-spa")
+model = VitsModel.from_pretrained("facebook/mms-tts-spa")
 
-# Configuración del dispositivo de cómputo (usa GPU si está disponible, si no, CPU)
+# Configuración del dispositivo (Prioriza CPU para evitar cuellos de botella)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
 
 def generar_audio_segmentos(eventos_filtrados: List[GameEvent]) -> List[CommentarySegment]:
     """
-    Sintetiza el texto de los eventos aprobados usando Bark de forma nativa.
-    Aprovecha los preajustes de voz oficiales.
+    Sintetiza el texto en audio de forma casi instantánea usando VITS.
+    Prioridad: Velocidad absoluta en CPU.
     """
     os.makedirs("../outputs", exist_ok=True)
     segmentos_finales = []
 
     for evento in eventos_filtrados:
-        print(f"🎙️ Generando voz humana para el segundo {evento.timestamp}...")
+        print(f"🎙️ Generando voz instantánea para el segundo {evento.timestamp}...")
         
-        # El procesador se encarga de estructurar el texto y el locutor correctamente
-        inputs = processor(
-            text=[evento.commentary_text],
-            voice_preset="v2/es_speaker_4"
-        ).to(device)
+        # 1. Tokenizar el texto del evento detectado
+        inputs = tokenizer(evento.commentary_text, return_tensors="pt").to(device)
         
-        # Generación directa de la onda de audio sin intermediarios
+        # 2. Generar la onda de audio (Salida instantánea en una sola pasada)
         with torch.no_grad():
-            audio_array = model.generate(**inputs)
+            output = model(**inputs).waveform
         
-        # Convertimos la salida de PyTorch a un array numérico que Scipy pueda escribir
-        audio_data = audio_array.cpu().numpy().squeeze()
+        # 3. Convertir a formato numérico que Scipy pueda procesar
+        audio_data = output.cpu().numpy().squeeze()
         
         ruta_audio = f"../outputs/audio_{evento.timestamp}s.wav"
         
-        # Guardamos el archivo con la tasa de muestreo nativa de Bark (24kHz)
-        sampling_rate = 24000
-        wavfile.write(ruta_audio, rate=sampling_rate, data=audio_data)
+        # 4. TRUCO DE VELOCIDAD ACÚSTICA:
+        # Engañamos a la función write aumentando la tasa de muestreo un 15% (1.15).
+        # Esto hace que el audio se reproduzca más rápido, eliminando el tono arrastrado.
+        sampling_rate_original = model.config.sampling_rate
+        sampling_rate_rapida = int(sampling_rate_original * 1.15) 
         
+        wavfile.write(ruta_audio, rate=sampling_rate_rapida, data=audio_data)
+        
+        # 5. Mapeo al contrato acordado
         segmento = CommentarySegment(
             timestamp=evento.timestamp,
             text=evento.commentary_text,
@@ -68,9 +68,9 @@ def generar_audio_segmentos(eventos_filtrados: List[GameEvent]) -> List[Commenta
         
     return segmentos_finales
 
-# Orquestación del flujo independiente para las pruebas de la Persona B
+# Orquestación del flujo independiente para las pruebas aisladas de la Persona B
 if __name__ == "__main__":
-    print("\n🚀 INICIANDO PIPELINE DE SALIDA NATIVO (PERSONA B) 🚀\n")
+    print("\n🚀 INICIANDO PIPELINE DE SALIDA ULTRA-RÁPIDO (PERSONA B) 🚀\n")
     ruta_mock = "../fixtures/mock_events.json" 
     
     if not os.path.exists(ruta_mock):
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     eventos_filtrados = filtrar_eventos_cooldown(eventos_simulados, cooldown=5.0)
     print(f"Eventos autorizados para narración: {len(eventos_filtrados)}")
     
-    print("\n--- PASO 3: Generando síntesis de voz (Bark Nativo) ---")
+    print("\n--- PASO 3: Generando síntesis de voz (VITS Rápido) ---")
     resultado_final = generar_audio_segmentos(eventos_filtrados)
     
     print("\n✅ ¡PIPELINE DE PRUEBA FINALIZADO CON ÉXITO! ✅")
