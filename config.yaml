@@ -1,0 +1,11 @@
+video:
+  frame_interval: 1.0
+
+models:
+  blip:
+    name: "vikhyatk/moondream2"
+  gpt2:
+    name: "Qwen/Qwen2.5-1.5B-Instruct"
+    max_new_tokens: 100
+    temperature: 0.6
+    top_p: 0.9
