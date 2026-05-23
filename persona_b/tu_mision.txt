@@ -1,0 +1,10 @@
+🧑 Persona B (Puntos 3 y 4):
+Tú no necesitas el video para empezar. Tu código debe:
+Leer el archivo fixtures/mock_events.json para simular que ya recibiste los datos 
+de la Persona A.  
+
+Punto 4 (Lógica): Filtrar esa lista. Por ejemplo, ignorar el evento 
+del segundo 2.5 porque es muy parecido al del segundo 2.0 (Heurística de cambio y cooldown).  
+
+Punto 3 (Voz): Tomar los eventos que sobrevivieron al filtro (los de los segundos 2.0, 5.0 y 12.0)
+y pasarlos por el modelo de audio facebook/mms-tts-spa para generar los archivos .wav.

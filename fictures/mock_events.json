@@ -1,0 +1,22 @@
+[
+  {
+    "timestamp": 2.0,
+    "description": "¡El jugador avanza por el pasillo principal buscando enemigos!"
+  },
+  {
+    "timestamp": 2.5,
+    "description": "El jugador sigue caminando por el pasillo."
+  },
+  {
+    "timestamp": 5.0,
+    "description": "¡Cuidado! Un enemigo ha aparecido de la nada y comienza el tiroteo."
+  },
+  {
+    "timestamp": 6.0,
+    "description": "El combate se intensifica, hay disparos por todos lados."
+  },
+  {
+    "timestamp": 12.0,
+    "description": "¡Victoria! El enemigo ha sido derrotado de un disparo en la cabeza."
+  }
+]
