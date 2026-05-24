@@ -4,11 +4,15 @@
 # En powershell como administrador
 #====> New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
 
-#Persona B
+# Persona B (Audio VITS)
 torch>=2.0.0
-transformers>=4.35.0
+transformers==4.48.0
 scipy>=1.10.0
-optimum>=1.16.0
 
-#interfaz grafica
+# Fase 5 (Interfaz)
 gradio>=4.0.0
+
+# Persona A (Visión Moondream2)
+opencv-python>=4.7.0
+pillow>=9.5.0
+einops>=0.6.0
