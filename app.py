@@ -47,16 +47,18 @@ def convertir_a_caster(desc_raw: str) -> str:
         return desc_raw
 
 # Ejecuta el flujo completo de analisis de frames y sintesis de voz en tiempo real
+# Ejecuta el flujo completo de analisis de frames y sintesis de voz en tiempo real
 def procesar_sistema_completo(video_path: str):
     if not video_path:
-        yield pd.DataFrame(), None, None
+        yield pd.DataFrame(columns=["Segundo", "Evento Detectado", "Accion del Sistema"]), None, None
         return
         
     frames, duracion = extraer_frames(video_path)
     
     eventos_filtrados = []
-    historial_datos = []
+    historial_datos = [] # Lista donde acumularemos las filas ordenadamente
     
+    # Render inicial con la tabla limpia
     df_historial = pd.DataFrame(columns=["Segundo", "Evento Detectado", "Accion del Sistema"])
     yield df_historial, None, None
     
@@ -83,13 +85,15 @@ def procesar_sistema_completo(video_path: str):
             estado = "Repetitivo (Cooldown)"
             desc_para_tabla = desc_raw
             
-        historial_datos.append({
-            "Segundo": f"{timestamp}s",
-            "Evento Detectado": desc_para_tabla,
-            "Accion del Sistema": estado
-        })
+        # CORRECCIÓN AQUÍ: Guardamos explícitamente los datos mapeados en formato de lista para el DataFrame
+        historial_datos.append([
+            f"{timestamp}s",
+            desc_para_tabla,
+            estado
+        ])
         
-        df_historial = pd.DataFrame(historial_datos)
+        # Reconstruimos el DataFrame con todo el histórico acumulado hasta este segundo
+        df_historial = pd.DataFrame(historial_datos, columns=["Segundo", "Evento Detectado", "Accion del Sistema"])
         yield df_historial, None, None
 
     # Sintetiza las voces y mezcla los audios resultantes con el video original usando FFmpeg
@@ -116,7 +120,6 @@ def procesar_sistema_completo(video_path: str):
             duracion_audio_ms = int((len(data) / rate) * 1000)
             
             retraso_ideal_ms = int(seg.timestamp * 1000)
-            
             retraso_real_ms = max(retraso_ideal_ms, tiempo_libre_ms)
             
             etiqueta = f"[a{input_idx}]"
@@ -147,6 +150,7 @@ def procesar_sistema_completo(video_path: str):
         except Exception as e:
             video_final_path = None
 
+    # Retorno final manteniendo el dataframe del historial completamente lleno
     yield df_historial, audio_final, video_final_path
 
 # Define y construye la interfaz grafica interactiva de usuario
