@@ -19,7 +19,7 @@ from video_reader import extraer_keyframes_dinamicos
 from contracts import GameEvent
 
 # Identificador del modelo ultra-ligero de Google
-MODEL_ID = "google/paligemma-3b-pt-448"
+MODEL_ID = "briaai/paligemma-3b-pt-448"
 
 print("⏳ Cargando VLM de Google de alta eficiencia (PaliGemma)...")
 
