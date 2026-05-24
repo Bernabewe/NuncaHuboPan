@@ -1,3 +1,0 @@
-Persona A (Puntos 1 y 2):Tu misión es crear el código que reciba el video real, extraiga los frames, use BLIP para describirlos, 
-use GPT-2 para traducirlo/hacerlo creativo en español, y guarde esa lista de eventos. Tu meta final es 
-lograr que tu código genere una lista de objetos tipo GameEvent idéntica a la del archivo JSON de prueba.  

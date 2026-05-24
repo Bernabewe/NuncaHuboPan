@@ -4,3 +4,4 @@ env/
 *.wav
 *.json
 .env
+narradorIA/

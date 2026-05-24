@@ -1,18 +1,11 @@
-# Dependencias del Pipeline de Audio y Lógica (Persona B)
-
 # pip install -r requirements.txt
-# En powershell como administrador
-#====> New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
 
-# Persona B (Audio VITS)
+gradio>=4.0.0
+pandas>=2.0.0
+groq>=0.4.0
+python-dotenv>=1.0.0
 torch>=2.0.0
 transformers==4.48.0
 scipy>=1.10.0
-
-# Fase 5 (Interfaz)
-gradio>=4.0.0
-
-# Persona A (Visión Moondream2)
-opencv-python>=4.7.0
+opencv-python>=4.7.0.72
 pillow>=9.5.0
-einops>=0.6.0
