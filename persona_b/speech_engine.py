@@ -54,9 +54,7 @@ def generar_audio_segmentos(eventos_filtrados: List[GameEvent]) -> List[Commenta
         # Engañamos a la función write aumentando la tasa de muestreo un 15% (1.15).
         # Esto hace que el audio se reproduzca más rápido, eliminando el tono arrastrado.
         sampling_rate_original = model.config.sampling_rate
-        sampling_rate_rapida = int(sampling_rate_original * 1.15) 
-        
-        wavfile.write(ruta_audio, rate=sampling_rate_rapida, data=audio_data)
+        wavfile.write(ruta_audio, rate=sampling_rate_original, data=audio_data)
         
         # 5. Mapeo al contrato acordado
         segmento = CommentarySegment(
