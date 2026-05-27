@@ -6,6 +6,7 @@
 
 import sys
 import os
+import requests
 import gradio as ui
 import pandas as pd
 import subprocess
@@ -25,7 +26,13 @@ from speech_engine import generar_audio_segmentos
 # Convierte una descripcion simple a un comentario epico utilizando el modelo de lenguaje
 def convertir_a_caster(desc_raw: str) -> str:
     try:
-        client = _get_client()
+        # 1. Configuración de la API de Hugging Face
+        HF_TOKEN = os.getenv("HF_TOKEN", "")
+        # Usamos uno de los modelos NLP sugeridos en la rúbrica
+        API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
+        headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+        
+        # 2. Estructuramos el prompt adaptado al modelo
         prompt = f"""Eres un caster experto en eSports. Tu objetivo es narrar clips de Warzone con emocion y precision.
         
         Descripcion tecnica: "{desc_raw}"
@@ -35,14 +42,27 @@ def convertir_a_caster(desc_raw: str) -> str:
         - NO uses muletillas.
         - Usa frases directas.
         - Responde SOLO con el dialogo del caster."""
+                
+        payload = {
+            "inputs": prompt,
+            "parameters": {
+                "max_new_tokens": 25,
+                "temperature": 0.7
+            }
+        }
         
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            max_tokens=40,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7 
-        )
-        return response.choices[0].message.content.strip()
+        # 3. Petición HTTP POST a los servidores de Hugging Face
+        response = requests.post(API_URL, headers=headers, json=payload)
+        resultado = response.json()
+        
+        # Extraemos el texto generado
+        if isinstance(resultado, list) and "generated_text" in resultado[0]:
+            texto_generado = resultado[0]["generated_text"]
+            # Limpiamos el prompt original si el modelo lo repite
+            texto_limpio = texto_generado.replace(prompt, "").strip()
+            return texto_limpio if texto_limpio else desc_raw
+            
+        return desc_raw
     except Exception as e:
         return desc_raw
 
