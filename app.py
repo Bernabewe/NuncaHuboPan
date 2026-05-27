@@ -79,7 +79,7 @@ def procesar_sistema_completo(video_path: str):
             texto_caster = convertir_a_caster(desc_raw)
             
             evento = GameEvent(timestamp=timestamp, raw_caption=desc_raw, commentary_text=texto_caster)
-            eventos_filtrados.append(evento)
+            eventos_filtrados.append(evento) # con este generaremos los audios de voz despues
             desc_para_tabla = texto_caster
         else:
             estado = "Repetitivo (Cooldown)"
@@ -189,7 +189,7 @@ with ui.Blocks(title="Ecosystem de Narracion IA - NuncaHuboPan", theme="dark") a
 
 if __name__ == "__main__":
     interfaz.queue().launch(
-        server_name="0.0.0.0", 
+        server_name="localhost", 
         server_port=7860,
         allowed_paths=[OUTPUTS_DIR]
     )
